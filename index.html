@@ -1,0 +1,1231 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#6ea9ce">
+  <title>Ucapan Ulang Tahun</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --blue: #6ea9ce;
+      --blue-dark: #397da8;
+      --pink: #ff6f9f;
+      --rose: #80515b;
+      --gold: #b18a66;
+      --paper: #fffdfb;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 16px 12px 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--blue);
+      font-family: 'Lora', Georgia, serif;
+    }
+
+    button { font: inherit; }
+
+    #canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: min(650px, 100%);
+      height: min(760px, 84vh);
+      height: min(760px, 84dvh);
+      min-height: 420px;
+      overflow: hidden;
+      background: var(--paper);
+      border-radius: 20px;
+      box-shadow: 0 14px 38px rgba(25, 57, 78, .22);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateX(18px);
+      transition: opacity .35s ease, transform .35s ease, visibility .35s;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .content {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      text-align: center;
+      scrollbar-width: thin;
+    }
+
+    h1 {
+      flex-shrink: 0;
+      margin: 8px 0;
+      color: #315d83;
+      font-size: clamp(22px, 5vw, 29px);
+      line-height: 1.35;
+    }
+
+    p {
+      max-width: 100%;
+      margin: 6px 0;
+      color: #444;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .content > img:not(.hope-image) {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: min(82%, 390px);
+      max-height: 34dvh;
+      object-fit: contain;
+      border-radius: 13px;
+      box-shadow: 0 5px 18px rgba(0,0,0,.15);
+      margin: 8px auto;
+      flex-shrink: 0;
+    }
+
+    .nav-btns {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 18px;
+      border-top: 1px solid #edf0f2;
+      background: rgba(255,255,255,.97);
+    }
+
+    .btn {
+      min-height: 42px;
+      padding: 10px 18px;
+      border: 0;
+      border-radius: 13px;
+      background: var(--pink);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,.12);
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .btn:hover { background: #ed5689; }
+    .btn:active { transform: scale(.96); }
+
+    /* PIN */
+    .pin-box {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .pin-box input {
+      width: 49px;
+      height: 58px;
+      padding: 0;
+      border: 2px solid #6b9fc2;
+      border-radius: 12px;
+      outline: none;
+      background: #f7fbff;
+      color: #315d83;
+      font-size: 25px;
+      text-align: center;
+    }
+
+    .pin-box input:focus { border-color: var(--pink); }
+    .error { min-height: 22px; color: #d94b67; font-size: 13px; }
+
+    .keyboard .row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 6px 0;
+    }
+
+    .keyboard button {
+      width: 55px;
+      height: 51px;
+      border: 0;
+      border-radius: 13px;
+      background: #397da8;
+      color: white;
+      font-size: 19px;
+      cursor: pointer;
+      box-shadow: 0 4px 9px rgba(0,0,0,.15);
+      touch-action: manipulation;
+    }
+
+    .keyboard button:active {
+      background: #285f83;
+      transform: scale(.94);
+    }
+
+    /* GIFT */
+    #slideGift .gift-content {
+      background: linear-gradient(160deg, #fffaf7, #f6e3e5);
+      color: var(--rose);
+    }
+
+    #slideGift h1 {
+      color: var(--rose);
+      font-weight: 500;
+    }
+
+    #slideGift .gift-subtitle {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 3px;
+    }
+
+    #slideGift .gift-hint {
+      color: #986e78;
+      font-size: 14px;
+    }
+
+    .gift-button {
+      position: relative;
+      display: block;
+      width: 190px;
+      height: 190px;
+      flex: 0 0 auto;
+      margin: 12px auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .gift-glow {
+      position: absolute;
+      inset: 22px;
+      border-radius: 50%;
+      background: #e5a7b3;
+      filter: blur(30px);
+      opacity: .45;
+    }
+
+    .gift-box {
+      position: absolute;
+      inset: 0;
+      transform: scale(var(--gift-scale, 1));
+      transition: transform .35s ease;
+    }
+
+    .gift-body {
+      position: absolute;
+      left: 35px;
+      top: 76px;
+      width: 120px;
+      height: 90px;
+      border-radius: 4px 4px 9px 9px;
+      background: linear-gradient(135deg, #d99aa8, #b7657a);
+      box-shadow: 0 12px 20px #9c5d5d25;
+    }
+
+    .gift-ribbon {
+      position: absolute;
+      left: 48px;
+      width: 24px;
+      height: 100%;
+      background: linear-gradient(90deg, #f8e4bd, #d6b16e, #f8e4bd);
+    }
+
+    .gift-lid {
+      position: absolute;
+      z-index: 2;
+      left: 27px;
+      top: 66px;
+      width: 136px;
+      height: 29px;
+      border-radius: 5px;
+      background: linear-gradient(135deg, #e9b3bd, #c77589);
+      transition: transform .45s ease;
+    }
+
+    .gift-lid::after {
+      content: '';
+      position: absolute;
+      left: 56px;
+      width: 24px;
+      height: 29px;
+      background: linear-gradient(90deg, #f8e4bd, #d6b16e, #f8e4bd);
+    }
+
+    .gift-bow {
+      position: absolute;
+      left: 45px;
+      top: -17px;
+      width: 23px;
+      height: 17px;
+      border: 5px solid #d6b16e;
+      border-radius: 50% 50% 15% 50%;
+      transform: rotate(25deg);
+    }
+
+    .gift-bow::after {
+      content: '';
+      position: absolute;
+      left: 12px;
+      top: -4px;
+      width: 23px;
+      height: 17px;
+      border: 5px solid #d6b16e;
+      border-radius: 50% 50% 50% 15%;
+      transform: rotate(-50deg);
+    }
+
+    .gift-button.opened .gift-lid {
+      transform: translate(-12px, -35px) rotate(-20deg);
+    }
+
+    .gift-burst {
+      position: absolute;
+      inset: -35px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, #fff9d9 0%, #f6dca1 15%, #e7a9ba 35%, transparent 70%);
+      animation: giftBurst .9s ease-out forwards;
+    }
+
+    @keyframes giftBurst {
+      0% { opacity: 0; transform: scale(.1); }
+      35% { opacity: 1; transform: scale(1.15); }
+      100% { opacity: 0; transform: scale(2.3); }
+    }
+
+    .gift-message {
+      max-width: 320px;
+      color: var(--rose);
+    }
+
+    .gift-message h2 {
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .gift-message p { font-size: 14px; }
+    .gift-signature { color: var(--gold); font-style: italic; }
+
+    /* SLIDE UCAPAN */
+    #slide3 .content {
+      justify-content: flex-start;
+      padding: 18px 22px 22px;
+      gap: 5px;
+    }
+
+    #slide3 h1 {
+      margin: 4px 0 8px;
+      font-size: clamp(21px, 5vw, 25px);
+    }
+
+    #slide3 .hope-image {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 78%;
+      max-height: 21dvh;
+      object-fit: contain;
+      margin: 4px auto 9px;
+      flex-shrink: 0;
+    }
+
+    #slide3 p {
+      width: 100%;
+      max-width: 510px;
+      margin: 5px 0;
+      font-size: 14px;
+      line-height: 1.65;
+      text-align: justify;
+    }
+
+    /* GALERI */
+    #slideGallery .content {
+      justify-content: flex-start;
+      padding: 18px 16px 22px;
+      gap: 4px;
+    }
+
+    .gallery-title {
+      margin: 2px 0;
+      color: var(--rose);
+      font-size: clamp(21px, 5vw, 25px);
+    }
+
+    .gallery-subtitle {
+      margin: 0 0 8px;
+      color: #a47b83;
+      font-size: 12px;
+    }
+
+    .gallery-quote {
+      margin: 0 0 10px;
+      color: #a47b83;
+      font-size: 11px;
+      font-style: italic;
+      letter-spacing: .5px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 17px 14px;
+      width: 100%;
+      padding: 5px 4px 12px;
+    }
+
+    .polaroid {
+      min-width: 0;
+      padding: 9px 9px 12px;
+      border: 1px solid #f0eeee;
+      border-radius: 3px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,.13);
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .polaroid:nth-child(odd) { transform: rotate(-1.5deg); }
+    .polaroid:nth-child(even) { transform: rotate(1.5deg); }
+    .polaroid:active { transform: scale(.97); }
+
+    .polaroid img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: none;
+      max-height: none;
+      object-fit: contain;
+      object-position: center;
+      border-radius: 1px;
+      box-shadow: none;
+      margin: 0;
+      background: #f4f2f0;
+    }
+
+    .polaroid p {
+      margin: 9px 0 0;
+      color: var(--rose);
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+      font-style: italic;
+    }
+
+    .video-thumb {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: linear-gradient(145deg, #d9eaf5, #f7dfe6);
+      color: #fff;
+    }
+
+    .video-thumb::before {
+      content: '▶';
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      padding-left: 3px;
+      border-radius: 50%;
+      background: rgba(55, 91, 119, .78);
+      box-shadow: 0 3px 12px rgba(0,0,0,.18);
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+    }
+
+    .video-thumb span {
+      position: absolute;
+      right: 8px;
+      bottom: 7px;
+      padding: 3px 6px;
+      border-radius: 5px;
+      background: rgba(0,0,0,.48);
+      font: 10px Arial, sans-serif;
+    }
+
+    /* PEMUTAR FOTO / VIDEO */
+    #photoViewer {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 58px 16px 24px;
+      background: rgba(17, 25, 36, .92);
+    }
+
+    #photoViewer.show { display: flex; }
+
+    #viewerImage, #viewerVideo {
+      display: none;
+      max-width: 100%;
+      max-height: 78dvh;
+      width: auto;
+      height: auto;
+      border-radius: 9px;
+      object-fit: contain;
+      box-shadow: 0 5px 25px rgba(0,0,0,.4);
+    }
+
+    #viewerVideo {
+      width: min(900px, 100%);
+      background: #000;
+    }
+
+    #closeViewer {
+      position: absolute;
+      top: max(14px, env(safe-area-inset-top));
+      right: 16px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--rose);
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    /* MUSIK */
+    #musicToggle {
+      position: fixed;
+      z-index: 10;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      min-height: 42px;
+      padding: 10px 19px;
+      border: 0;
+      border-radius: 12px;
+      background: #174b68;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      white-space: nowrap;
+      touch-action: manipulation;
+    }
+
+    #musicToggle:active { background: #10384f; }
+
+    @media (max-width: 600px) {
+      body { padding: 10px 9px 70px; }
+
+      .card {
+        width: 100%;
+        height: min(82dvh, 760px);
+        min-height: 390px;
+        border-radius: 16px;
+      }
+
+      .content { padding: 17px 15px; gap: 8px; }
+      p { font-size: 14px; line-height: 1.6; }
+      .nav-btns { padding: 10px 12px; gap: 9px; }
+      .btn { min-height: 40px; padding: 9px 12px; font-size: 13px; }
+      .keyboard .row { gap: 7px; margin: 5px 0; }
+      .keyboard button { width: 49px; height: 47px; border-radius: 12px; }
+      .pin-box { gap: 7px; }
+      .pin-box input { width: 43px; height: 52px; font-size: 23px; }
+      #slide3 .content { padding: 13px 16px 18px; }
+      #slide3 p { font-size: 13px; line-height: 1.55; }
+      #slideGallery .content { padding: 14px 12px 18px; }
+      .gallery-grid { gap: 14px 11px; padding-inline: 3px; }
+      .polaroid { padding: 7px 7px 10px; }
+      .polaroid p { margin-top: 7px; font-size: 10px; }
+      #musicToggle { font-size: 13px; padding: 9px 16px; }
+      .gift-button { transform: scale(.9); margin: 2px auto; }
+    }
+
+    @media (max-width: 360px) {
+      .card { height: 80dvh; }
+      .content { padding: 12px 10px; }
+      .pin-box input { width: 39px; height: 48px; }
+      .keyboard button { width: 44px; height: 44px; }
+      .gallery-grid { gap: 12px 9px; }
+      .polaroid { padding: 6px 6px 9px; }
+      .polaroid p { font-size: 9px; }
+      .nav-btns { padding: 9px 8px; }
+      .btn { padding: 8px 9px; font-size: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" aria-hidden="true"></canvas>
+
+  <main class="card" id="mainCard">
+
+    <!-- HALAMAN 1: PIN -->
+    <section class="slide active" id="slide1">
+      <div class="content">
+        <h1>Masukkan PIN</h1>
+
+        <div class="pin-box" aria-label="Masukkan empat digit PIN">
+          <input type="password" maxlength="1" inputmode="none" aria-label="Digit 1" readonly>
+          <input type="password" maxlength="1" inputmode="none" aria-label="Digit 2" readonly>
+          <input type="password" maxlength="1" inputmode="none" aria-label="Digit 3" readonly>
+          <input type="password" maxlength="1" inputmode="none" aria-label="Digit 4" readonly>
+        </div>
+
+        <div class="keyboard">
+          <div class="row">
+            <button type="button" onclick="pressNum(1)">1</button>
+            <button type="button" onclick="pressNum(2)">2</button>
+            <button type="button" onclick="pressNum(3)">3</button>
+          </div>
+
+          <div class="row">
+            <button type="button" onclick="pressNum(4)">4</button>
+            <button type="button" onclick="pressNum(5)">5</button>
+            <button type="button" onclick="pressNum(6)">6</button>
+          </div>
+
+          <div class="row">
+            <button type="button" onclick="pressNum(7)">7</button>
+            <button type="button" onclick="pressNum(8)">8</button>
+            <button type="button" onclick="pressNum(9)">9</button>
+          </div>
+
+          <div class="row">
+            <button type="button" onclick="deleteNum()" aria-label="Hapus digit">⌫</button>
+            <button type="button" onclick="pressNum(0)">0</button>
+            <button type="button" onclick="checkPin()" aria-label="Periksa PIN">✔</button>
+          </div>
+        </div>
+
+        <div class="error" id="errorMsg" role="status" aria-live="polite"></div>
+
+        <p style="margin-top:8px;font-size:14px;color:#666">
+          <i>* Clue: Tahun lahirmu</i>
+        </p>
+      </div>
+    </section>
+
+    <!-- HALAMAN KADO -->
+    <section class="slide" id="slideGift">
+      <div class="content gift-content">
+        <p class="gift-subtitle">A LITTLE SURPRISE FOR YOU</p>
+
+        <h1>Something Special ♡</h1>
+
+        <p class="gift-hint" id="giftHint">
+          Klik kadonya 6 kali untuk membuka kejutan
+        </p>
+
+        <button class="gift-button" id="giftButton"
+          type="button"
+          aria-label="Klik kotak kado"
+          aria-expanded="false">
+
+          <span class="gift-glow"></span>
+
+          <span class="gift-box" id="giftBox">
+            <span class="gift-lid">
+              <span class="gift-bow"></span>
+            </span>
+
+            <span class="gift-body">
+              <span class="gift-ribbon"></span>
+            </span>
+          </span>
+        </button>
+
+        <div class="gift-message" id="giftMessage" hidden>
+          <h2>Surprise! ♡</h2>
+          <p>There's something special waiting for you...</p>
+          <p class="gift-signature">With love ♡</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HALAMAN 2 -->
+    <section class="slide" id="slide2">
+      <div class="content">
+        <h1>To shidqi anak e agus</h1>
+
+        <img src="birthday.gif" alt="Happy Birthday">
+
+        <p>Hello nen wan wan, aoakah yu sdg ultah? HEHEHEHE</p>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn" type="button" onclick="prevSlide()">⬅ Kembali</button>
+        <button class="btn" type="button" onclick="nextSlide()">Lanjut ➡</button>
+      </div>
+    </section>
+
+    <!-- HALAMAN 3 -->
+    <section class="slide" id="slide3">
+      <div class="content">
+        <h1>mai ucapan dan doa</h1>
+
+        <img class="hope-image" src="hope.gif" alt="Doa dan Harapan">
+
+        <p>HABEDE CINGTAHHH!! 🥳🎂💗I hope your special day is filled with happiness, love, and beautiful moments. May all your dreams come true, and may this new chapter of your life bring you endless blessings, success, and genuine happiness. I hope you always find reasons to smile, even on your hardest days.</p>
+
+        <p>Di umur yang baru ini kamu selalu diberikan kesehatan, kebahagiaan, dan kemudahan dalam segala hal. Semoga semua doa yang kamu simpan diam-diam bisa segera terwujud. Jangan lupa untuk selalu bersyukur, sayang sama diri sendiri, dan ingat bahwa kamu pantas mendapatkan hal-hal baik dalam hidup.</p>
+
+        <p>Thank you for being the wonderful person you are. Keep growing, keep shining, and never stop believing in yourself. I hope life treats you kindly and brings you people who truly appreciate you.</p>
+
+        <p>Jangan lupa ibadah nya ditingkatin dan selalu ingat Allah,qi.</p>
+
+        <p>Dan yang terakhir, jangan lupain aku ya?</p>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn" type="button" onclick="prevSlide()">⬅ Kembali</button>
+        <button class="btn" type="button" onclick="nextSlide()">Lanjut ➡</button>
+      </div>
+    </section>
+
+    <!-- HALAMAN 4 -->
+    <section class="slide" id="slide4">
+      <div class="content">
+        <img src="foto.jpeg" alt="Foto kenangan">
+
+        <p>
+          eleuh eleuh anak lanang wis gedi loh yah..wes sepentin AWOKAWOK.
+          gwa tau ini ga seberapa dibanding hdiah org lain, tpi ya mau gmna lagi gwa pen bikin ssuatu yg ssuai sm minat bakat gwa yaitu hengker tzy
+          maaf belum bisa ngasih yang terbaik buat luw
+        </p>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn" type="button" onclick="prevSlide()">⬅ Kembali</button>
+        <button class="btn" type="button" onclick="nextSlide()">Lanjut ➡</button>
+      </div>
+    </section>
+
+    <!-- HALAMAN GALERI -->
+    <section class="slide" id="slideGallery">
+      <div class="content">
+        <h1 class="gallery-title">Our Little Memories ♡</h1>
+
+        <p class="gallery-subtitle">
+          A little collection of beautiful moments
+        </p>
+
+        <p class="gallery-quote">
+          - If I wanted to, I would.
+        </p>
+
+        <div class="gallery-grid">
+
+          <button class="polaroid" type="button" onclick="openPhoto('foto1.jpeg', 'image')">
+            <img src="foto1.jpeg" alt="Kenangan 1" loading="lazy">
+            <p>A moment I'll never forget. ♡</p>
+          </button>
+
+          <button class="polaroid" type="button" onclick="openPhoto('foto2.jpeg', 'image')">
+            <img src="foto2.jpeg" alt="Kenangan 2" loading="lazy">
+            <p>One of my favorite memories. ♡</p>
+          </button>
+
+          <button class="polaroid" type="button" onclick="openPhoto('foto3.jpeg', 'image')">
+            <img src="foto3.jpeg" alt="Kenangan 3" loading="lazy">
+            <p>Little things, beautiful memories. ♡</p>
+          </button>
+
+          <button class="polaroid" type="button" onclick="openPhoto('foto4.jpeg', 'image')">
+            <img src="foto4.jpeg" alt="Kenangan 4" loading="lazy">
+            <p>A day worth remembering. ♡</p>
+          </button>
+
+          <button class="polaroid" type="button" onclick="openPhoto('foto5.jpeg', 'image')">
+            <img src="foto5.jpeg" alt="Kenangan 5" loading="lazy">
+            <p>Every picture has a story. ♡</p>
+          </button>
+
+          <button class="polaroid" type="button" onclick="openPhoto('foto8.jpeg', 'image')">
+            <img src="foto8.jpeg" alt="Kenangan 6" loading="lazy">
+            <p>One more reason to smile. ♡</p>
+          </button>
+
+          <button class="polaroid" type="button" onclick="openPhoto('vidio6.mp4', 'video')">
+            <span class="video-thumb" aria-label="Putar video kenangan">
+              <span>VIDEO</span>
+            </span>
+            <p>A memory to keep forever. ♡</p>
+          </button>
+
+          <button class="polaroid" type="button" onclick="openPhoto('vidio7.mp4', 'video')">
+            <span class="video-thumb" aria-label="Putar video kenangan">
+              <span>VIDEO</span>
+            </span>
+            <p>And many more memories to come. ♡</p>
+          </button>
+
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn" type="button" onclick="prevSlide()">⬅ Kembali</button>
+        <button class="btn" type="button" onclick="nextSlide()">Lanjut ➡</button>
+      </div>
+    </section>
+
+    <!-- HALAMAN TERAKHIR -->
+    <section class="slide" id="slide5">
+      <div class="content">
+        <img src="thanks.gif" alt="Terima Kasih">
+
+        <p>
+          Terima kasih sudah menjadi bagian penting dalam hidupku.
+          i love you qi.
+        </p>
+      </div>
+
+      <div class="nav-btns" style="justify-content:center">
+        <button class="btn" type="button" onclick="prevSlide()">⬅ Kembali</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PEMUTAR FOTO DAN VIDEO -->
+  <div id="photoViewer"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Lihat kenangan"
+    onclick="closePhoto()">
+
+    <button id="closeViewer"
+      type="button"
+      aria-label="Tutup"
+      onclick="closePhoto()">×</button>
+
+    <img id="viewerImage" src="" alt="Foto kenangan ukuran besar">
+
+    <video id="viewerVideo"
+      controls
+      playsinline
+      preload="metadata">
+      Browser kamu tidak mendukung pemutaran video.
+    </video>
+  </div>
+
+  <!-- MUSIK -->
+  <audio id="backgroundMusic" loop preload="auto">
+  <source src="./musik.mp3" type="audio/mpeg">
+  Browser kamu tidak mendukung audio.
+</audio>
+
+  <button id="musicToggle" type="button" onclick="toggleMusic()">
+    ▶ Play Musik
+  </button>
+
+  <script>
+    /* SLIDE */
+
+    const slides = [
+      document.getElementById('slide1'),
+      document.getElementById('slideGift'),
+      document.getElementById('slide2'),
+      document.getElementById('slide3'),
+      document.getElementById('slide4'),
+      document.getElementById('slideGallery'),
+      document.getElementById('slide5')
+    ];
+
+    let currentSlide = 1;
+    let slideBusy = false;
+
+    function animateSlides(oldIndex, newIndex) {
+      if (slideBusy || oldIndex === newIndex) return;
+
+      slideBusy = true;
+
+      const oldSlide = slides[oldIndex - 1];
+      const newSlide = slides[newIndex - 1];
+
+      if (!oldSlide || !newSlide) {
+        slideBusy = false;
+        return;
+      }
+
+      oldSlide.classList.remove('active');
+      newSlide.classList.add('active');
+      currentSlide = newIndex;
+
+      window.setTimeout(() => {
+        slideBusy = false;
+      }, 380);
+    }
+
+    /* PIN */
+
+    function checkPin() {
+      const inputs = document.querySelectorAll('#slide1 .pin-box input');
+      const pin = Array.from(inputs).map(input => input.value).join('');
+      const error = document.getElementById('errorMsg');
+
+      if (pin === '2010') {
+        error.textContent = '';
+        animateSlides(1, 2);
+      } else {
+        error.textContent = 'PIN salah, coba lagi!';
+        inputs.forEach(input => input.value = '');
+      }
+    }
+
+    function pressNum(num) {
+      const inputs = document.querySelectorAll('#slide1 .pin-box input');
+
+      for (const input of inputs) {
+        if (input.value === '') {
+          input.value = String(num);
+          break;
+        }
+      }
+
+      document.getElementById('errorMsg').textContent = '';
+    }
+
+    function deleteNum() {
+      const inputs = document.querySelectorAll('#slide1 .pin-box input');
+
+      for (let i = inputs.length - 1; i >= 0; i--) {
+        if (inputs[i].value !== '') {
+          inputs[i].value = '';
+          break;
+        }
+      }
+
+      document.getElementById('errorMsg').textContent = '';
+    }
+
+    /* NAVIGASI */
+
+    function nextSlide() {
+      if (currentSlide < slides.length) {
+        animateSlides(currentSlide, currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 2) {
+        animateSlides(currentSlide, currentSlide - 1);
+      }
+    }
+
+    
+/* MUSIK */
+
+const audio = document.getElementById('backgroundMusic');
+const musicButton = document.getElementById('musicToggle');
+
+audio.volume = 0.7;
+
+async function toggleMusic() {
+  try {
+    if (audio.paused) {
+      await audio.play();
+      musicButton.textContent = '⏸ Pause Musik';
+    } else {
+      audio.pause();
+      musicButton.textContent = '▶ Play Musik';
+    }
+  } catch (error) {
+    console.error('Audio error:', error);
+
+    musicButton.textContent = '❌ Musik gagal diputar';
+
+    alert(
+      'Musik tidak bisa diputar. Periksa file musik.mp3 dan lokasi foldernya!'
+    );
+  }
+}
+
+audio.addEventListener('play', () => {
+  musicButton.textContent = '⏸ Pause Musik';
+});
+
+audio.addEventListener('pause', () => {
+  musicButton.textContent = '▶ Play Musik';
+});
+
+audio.addEventListener('error', () => {
+  console.error('File musik tidak ditemukan atau format tidak didukung.');
+  musicButton.textContent = '❌ File musik bermasalah';
+});
+
+    audio.addEventListener('ended', () => {
+      musicButton.textContent = '▶ Play Musik';
+    });
+
+    /* FOTO DAN VIDEO */
+
+    const viewer = document.getElementById('photoViewer');
+    const viewerImage = document.getElementById('viewerImage');
+    const viewerVideo = document.getElementById('viewerVideo');
+
+    function openPhoto(file, type = 'image') {
+      viewer.classList.add('show');
+      document.body.style.overflow = 'hidden';
+
+      if (type === 'video') {
+        viewerImage.style.display = 'none';
+        viewerImage.removeAttribute('src');
+
+        viewerVideo.style.display = 'block';
+        viewerVideo.src = file;
+        viewerVideo.load();
+      } else {
+        viewerVideo.pause();
+        viewerVideo.style.display = 'none';
+        viewerVideo.removeAttribute('src');
+        viewerVideo.load();
+
+        viewerImage.src = file;
+        viewerImage.style.display = 'block';
+      }
+    }
+
+    function closePhoto() {
+      viewer.classList.remove('show');
+
+      viewerVideo.pause();
+      viewerVideo.removeAttribute('src');
+      viewerVideo.load();
+
+      viewerImage.removeAttribute('src');
+
+      document.body.style.overflow = '';
+    }
+
+    viewerImage.addEventListener('click', event => {
+      event.stopPropagation();
+    });
+
+    viewerVideo.addEventListener('click', event => {
+      event.stopPropagation();
+    });
+
+    document.getElementById('closeViewer').addEventListener('click', event => {
+      event.stopPropagation();
+      closePhoto();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closePhoto();
+    });
+
+    /* ANIMASI KADO: ENAM KALI KLIK */
+
+    const giftButton = document.getElementById('giftButton');
+    const giftBox = document.getElementById('giftBox');
+    const giftHint = document.getElementById('giftHint');
+
+    let giftClicks = 0;
+    let giftTransitioning = false;
+
+    giftButton.addEventListener('click', () => {
+      if (giftTransitioning) return;
+
+      giftClicks++;
+
+      giftBox.style.setProperty(
+        '--gift-scale',
+        Math.pow(.78, giftClicks)
+      );
+
+      if (giftClicks < 6) {
+        giftHint.textContent =
+          `Satu kejutan lagi... ${6 - giftClicks} klik ♡`;
+
+        return;
+      }
+
+      giftTransitioning = true;
+
+      giftButton.classList.add('opened');
+      giftButton.setAttribute('aria-expanded', 'true');
+
+      giftHint.textContent = 'A little magic for you ✨';
+
+      const burst = document.createElement('span');
+      burst.className = 'gift-burst';
+
+      giftButton.appendChild(burst);
+
+      window.setTimeout(() => {
+        animateSlides(2, 3);
+      }, 850);
+    });
+
+    /* HATI MELAYANG */
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let hearts = [];
+    let animationFrame;
+
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      hearts = Array.from(
+        { length: 28 },
+        () => new Heart(true)
+      );
+    }
+
+    class Heart {
+      constructor(randomY = false) {
+        this.x = Math.random() * window.innerWidth;
+
+        this.y = randomY
+          ? Math.random() * window.innerHeight
+          : window.innerHeight + 30;
+
+        this.size = 8 + Math.random() * 12;
+        this.speed = .35 + Math.random() * .8;
+        this.alpha = .25 + Math.random() * .4;
+      }
+
+      draw() {
+        ctx.save();
+
+        ctx.translate(this.x, this.y);
+
+        ctx.fillStyle = `rgba(255, 75, 125, ${this.alpha})`;
+
+        ctx.beginPath();
+
+        ctx.moveTo(0, -this.size / 2);
+
+        ctx.bezierCurveTo(
+          this.size / 2,
+          -this.size,
+          this.size,
+          -this.size / 4,
+          0,
+          this.size
+        );
+
+        ctx.bezierCurveTo(
+          -this.size,
+          -this.size / 4,
+          -this.size / 2,
+          -this.size,
+          0,
+          -this.size / 2
+        );
+
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      update() {
+        this.y -= this.speed;
+
+        if (this.y < -30) {
+          this.y = window.innerHeight + 30;
+          this.x = Math.random() * window.innerWidth;
+        }
+
+        this.draw();
+      }
+    }
+
+    function animateHearts() {
+      ctx.clearRect(
+        0,
+        0,
+        window.innerWidth,
+        window.innerHeight
+      );
+
+      hearts.forEach(heart => heart.update());
+
+      animationFrame = requestAnimationFrame(animateHearts);
+    }
+
+    resizeCanvas();
+    animateHearts();
+
+    window.addEventListener('resize', resizeCanvas);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrame);
+      } else {
+        cancelAnimationFrame(animationFrame);
+        animateHearts();
+      }
+    });
+
+  </script>
+</body>
+</html>
